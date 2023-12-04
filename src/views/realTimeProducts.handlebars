@@ -1,0 +1,28 @@
+<div>
+  <!-- Formulario para agregar un producto -->
+  <h2>Formulario para añadir un producto</h2>
+  <form id="addProductForm">
+    <input type="text" name="title" placeholder="Título">
+    <input type="text" name="description" placeholder="Descripción">
+    <input type="number" name="code" placeholder="Código">
+    <input type="number" name="price" placeholder="Precio">
+    <input type="number" name="stock" placeholder="Stock">
+    <input type="text" name="category" placeholder="Categoría">
+    <button type="submit">Agregar Producto</button>
+  </form>
+
+  <!-- Formulario para eliminar un producto por ID -->
+  <h2>Formulario para eliminar un producto</h2>
+  <form id="deleteProductForm">
+    <input type="text" name="productId" placeholder="ID del Producto a Eliminar">
+    <button type="submit">Eliminar Producto</button>
+  </form>
+  <div>
+    <h1>Lista de productos</h1>
+    <div id="product-list">
+
+    </div>
+  </div>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/index.js"></script>

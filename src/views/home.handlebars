@@ -1,0 +1,39 @@
+<div>
+  {{#if welcomeMessage}}
+  <h1>{{welcomeMessage}}</h1>
+  {{/if}}
+  <h2>Lista de productos</h2>
+  <article>
+    <table>
+      <tr>
+        {{!-- <th>Id</th> --}}
+        <th>Title</th>
+        <th>Description</th>
+        <th>Code</th>
+        <th>Price</th>
+        <th>Status</th>
+        <th>Stock</th>
+        <th>Category</th>
+        <th></th>
+      </tr>
+      <tbody>
+        {{#each products.payload }}
+        <tr>
+          {{!-- <td>{{this._id}} </td> --}}
+          <td>{{this.title}} </td>
+          <td>{{this.description}} </td>
+          <td>{{this.code}} </td>
+          <td>{{this.price}} </td>
+          <td>{{this.status}} </td>
+          <td>{{this.stock}} </td>
+          <td>{{this.category}} </td>
+          <td><a href="" role="button">Agregar al Carrito</a></td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <p>Página Actual: {{products.page}} </p>
+    <a href="{{products.prevLink}}" role="button" {{#unless products.hasPrevPage}}disabled{{/unless}}>Anterior</a>
+    <a href="{{products.nextLink}}" role="button" {{#unless products.hasNextPage}}disabled{{/unless}}>Siguiente</a>
+  </article>
+</div>
