@@ -27,7 +27,9 @@ router.post('/sessions/login', async (req, res) => {
         first_name,
         last_name,
         email,
-        age,};
+        age,
+        role: email === 'adminCoder@coder.com' && password === 'adminCod3r123' ? 'admin' : 'user',
+    };
     // res.status(200).json({ messaje: 'Session iniciada correctamente' })
     res.redirect('/views')
 })
