@@ -31,6 +31,10 @@ router.get('/register', async (req, res) => {
   res.render('register', { title: 'Bienvenido a nuestro Ecommerce' });
 });
 
+router.get('/recovery-pass', async (req, res) => {
+  res.render('recovery-pass', { title: 'Bienvenido a nuestro Ecommerce' });
+});
+
 router.get('/', async (req, res) => {
   const { limit = 10, page = 1, sort, category } = req.query;
   // sort es por precio, posibles valores asc/desc

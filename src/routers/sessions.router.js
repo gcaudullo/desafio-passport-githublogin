@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import userModel from '../dao/models/user.model.js';
-import bcrypt from 'bcrypt';
+import { createHash, isValidPassword } from '../utils.js';
 const router = Router();
 
 router.post('/sessions/login', async (req, res) => {
@@ -16,7 +16,7 @@ router.post('/sessions/login', async (req, res) => {
         res.render('error', { messageError: 'Usuario no registrado en nuestra Base de Datos' })
         return;
     }
-    const passwordMatch = password === user.password;
+    const passwordMatch = isValidPassword(password, user);
     if (!passwordMatch) {
         // return res.status(401).json({ message: 'Correo o contraseña no son validos' })
         res.render('error', { messageError: 'Correo o contraseña no son validos' })
@@ -62,11 +62,29 @@ router.post('/session/register', async (req, res) => {
         first_name,
         last_name,
         email,
-        password,
+        password: createHash(password),
         age,
     })
     // res.status(201).json(user)
     res.redirect('/views/login')
+})
+
+router.post('/sessions/recovery-password', async (req, res) => {
+    const { body: { email, password } } = req;
+    if (!email || !password) {
+        //return res.status(400).json({ message: 'Todos los campos son requeridos.' })
+        res.render('error', { messageError: 'Todos los campos son requeridos.' })
+        return;
+    }
+    const user = await userModel.findOne({ email })
+    if (!user) {
+        // return res.status(401).json({ message: 'Correo o contraseña no son validos' })
+        res.render('error', { messageError: 'Usuario no registrado en nuestra Base de Datos' })
+        return;
+    }
+    user.password = createHash(password);
+    await userModel.updateOne({ email }, user);
+    res.redirect('/views/login');
 })
 
 router.get('/session/profile', async (req, res) => {
