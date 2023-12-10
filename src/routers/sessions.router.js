@@ -1,21 +1,26 @@
 import { Router } from 'express';
 import userModel from '../dao/models/user.model.js';
+import bcrypt from 'bcrypt';
 const router = Router();
 
 router.post('/sessions/login', async (req, res) => {
     const { body: { email, password } } = req;
     if (!email || !password) {
         //return res.status(400).json({ message: 'Todos los campos son requeridos.' })
-        res.render('error', { title: 'Bienvenido a nuesto Ecommerce', messageError: 'Todos los campos son requeridos.' })
+        res.render('error', { messageError: 'Todos los campos son requeridos.' })
+        return;
     }
     const user = await userModel.findOne({ email })
     if (!user) {
         // return res.status(401).json({ message: 'Correo o contraseña no son validos' })
-        res.render('error', { title: 'Bienvenido a nuesto Ecommerce', messageError: 'Correo o contraseña no son validos' })
+        res.render('error', { messageError: 'Usuario no registrado en nuestra Base de Datos' })
+        return;
     }
-    if (user.password !== password) {
+    const passwordMatch = password === user.password;
+    if (!passwordMatch) {
         // return res.status(401).json({ message: 'Correo o contraseña no son validos' })
-        res.render('error', { title: 'Bienvenido a nuesto Ecommerce', messageError: 'Correo o contraseña no son validos' })
+        res.render('error', { messageError: 'Correo o contraseña no son validos' })
+        return;
     }
     const {
         first_name,
@@ -51,7 +56,7 @@ router.post('/session/register', async (req, res) => {
         !password
     ) {
         // return res.status(400).json({ message: 'Todos los campos son requeridos.' })
-        res.render('error', { title: 'Bienvenido a nuesto Ecommerce', messageError: 'Todos los campos son requeridos.' })
+        res.render('error', { messageError: 'Todos los campos son requeridos.' })
     }
     const user = await userModel.create({
         first_name,
