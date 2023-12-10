@@ -6,22 +6,22 @@ router.post('/sessions/login', async (req, res) => {
     const { body: { email, password } } = req;
     if (!email || !password) {
         //return res.status(400).json({ message: 'Todos los campos son requeridos.' })
-        res.render('error', {title: 'Bienvenido a nuesto Ecommerce', messageError: 'Todos los campos son requeridos.'})
+        res.render('error', { title: 'Bienvenido a nuesto Ecommerce', messageError: 'Todos los campos son requeridos.' })
     }
     const user = await userModel.findOne({ email })
     if (!user) {
         // return res.status(401).json({ message: 'Correo o contraseña no son validos' })
-        res.render('error', {title: 'Bienvenido a nuesto Ecommerce', messageError: 'Correo o contraseña no son validos'})
+        res.render('error', { title: 'Bienvenido a nuesto Ecommerce', messageError: 'Correo o contraseña no son validos' })
     }
     if (user.password !== password) {
         // return res.status(401).json({ message: 'Correo o contraseña no son validos' })
-        res.render('error', {title: 'Bienvenido a nuesto Ecommerce', messageError: 'Correo o contraseña no son validos'})
+        res.render('error', { title: 'Bienvenido a nuesto Ecommerce', messageError: 'Correo o contraseña no son validos' })
     }
     const {
         first_name,
         last_name,
         age,
-    } = user; 
+    } = user;
 
     req.session.user = {
         first_name,
@@ -34,7 +34,7 @@ router.post('/sessions/login', async (req, res) => {
     res.redirect('/views')
 })
 
-router.post('/sessions/register', async (req, res) => {
+router.post('/session/register', async (req, res) => {
     const {
         body: {
             first_name,
@@ -51,7 +51,7 @@ router.post('/sessions/register', async (req, res) => {
         !password
     ) {
         // return res.status(400).json({ message: 'Todos los campos son requeridos.' })
-        res.render('error', {title: 'Bienvenido a nuesto Ecommerce', messageError: 'Todos los campos son requeridos.'})
+        res.render('error', { title: 'Bienvenido a nuesto Ecommerce', messageError: 'Todos los campos son requeridos.' })
     }
     const user = await userModel.create({
         first_name,
@@ -64,10 +64,21 @@ router.post('/sessions/register', async (req, res) => {
     res.redirect('/views/login')
 })
 
-router.get('/sessions/profile', async (req, res) => {
+router.get('/session/profile', async (req, res) => {
     if (!req.session.user) {
         return res.status(401).json({ message: 'No estas autenticado.' })
     }
     return res.status(200).json(req.session.user)
 })
+
+router.get('/session/logout', (req, res) => {
+    req.session.destroy((error) => {
+        if (error) {
+            return res.render('error', { title: 'Hello People 🖐️', messageError: error.message });
+        }
+        res.redirect('/views/login');
+    });
+})
+
 export default router;
+

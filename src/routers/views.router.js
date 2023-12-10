@@ -47,7 +47,7 @@ router.get('/', async (req, res) => {
   try {
     const products = await ProductsManager.getProducts(criteria, options);
     const data = buildResponsePaginated({ ...products, sort, category }, 'http://localhost:8080/views');
-    res.render('home', { title: 'Productos 🚀', products: data , welcomeMessage: user ? `Bienvenido, ${user.first_name}!`:''});
+    res.render('home', { title: 'Productos 🚀', products: data , welcomeMessage: user ? `Bienvenido, ${user.first_name}!             Rol: ${user.role}`:''});
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error obtaining products.' });
