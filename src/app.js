@@ -6,10 +6,11 @@ import cartsRouter from './routers/carts.router.js';
 import viewsRouter from './routers/views.router.js';
 import sessionRouter from './routers/sessions.router.js';
 import handlebars from 'express-handlebars';
+import passport from 'passport'
 import sessions from 'express-session'
 import MongoStore from 'connect-mongo'
 import { URI } from './db/mongodb.js'
-
+import { init as initPassport} from './config/passport.config.js'
 
 
 const app = express();
@@ -28,11 +29,6 @@ app.use(sessions({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-
-
-app.use('/api', productsRouter, cartsRouter, sessionRouter);
-app.use('/views', viewsRouter);
-
 // Configuración de Handlebars
 const hbs = handlebars.create({
   // ... otras configuraciones ...
@@ -41,10 +37,17 @@ const hbs = handlebars.create({
     allowProtoMethodsByDefault: true,
   },
 });
-
 app.engine('handlebars', hbs.engine);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'handlebars');
+
+initPassport();
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+app.use('/api', productsRouter, cartsRouter, sessionRouter);
+app.use('/views', viewsRouter);
 
 app.use((error, req, res, next) => {
   const message = `Ah ocurrido un error deconocido 🎃: ${error.message}`

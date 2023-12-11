@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get('/profile', async (req, res) => {
   // Comprueba si hay un usuario en la sesión
-  const user = req.session.user;
+  const user = req.user;
   // Si no hay usuario, redirige al inicio de sesión
   if (!user) {
     return res.redirect('/views/login');
@@ -41,7 +41,7 @@ router.get('/', async (req, res) => {
   // search es por category
   const criteria = {};
   const options = { limit, page }
-  const user = req.session.user;
+  const user = req.user;
   if (sort) {
     options.sort = { price: sort };
   }
@@ -51,7 +51,7 @@ router.get('/', async (req, res) => {
   try {
     const products = await ProductsManager.getProducts(criteria, options);
     const data = buildResponsePaginated({ ...products, sort, category }, 'http://localhost:8080/views');
-    res.render('home', { title: 'Productos 🚀', products: data , welcomeMessage: user ? `Bienvenido, ${user.first_name}!             Rol: ${user.role}`:''});
+    res.render('home', { title: 'Productos 🚀', products: data , welcomeMessage: user ? `Bienvenido, ${user.first_name}! <br>Rol: ${user.role}`:''});
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error obtaining products.' });
