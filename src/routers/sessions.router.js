@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import userModel from '../dao/models/user.model.js';
-import { createHash, isValidPassword } from '../utils.js';
-import passport from 'passport';
+import { createHash, generateToken, isValidPassword, verifyToken, authMiddleware, authRolesMiddleware } from '../utils.js';
+import passport, { session } from 'passport';
 const router = Router();
 
 router.post('/sessions/login', passport.authenticate('login', { failureRedirect: '/sessions/login' }), async (req, res) => {
@@ -57,12 +57,50 @@ router.get('/sessions/logout', (req, res) => {
     });
 })
 
-router.get('/sessions/github', passport.authenticate('github', { scope: ['user:email']}))
+router.get('/sessions/github', passport.authenticate('github', { scope: ['user:email'] }))
 
-router.get('/sessions/github/callback', passport.authenticate('github', { failureRedirect: '/sessions/login'}), (req, res)=>{
+router.get('/sessions/github/callback', passport.authenticate('github', { failureRedirect: '/sessions/login' }), (req, res) => {
     console.log(req.user)
     // res.status(200).json({ messaje: 'Session iniciada correctamente' })
     res.redirect('/views')
+})
+
+const auth = async (req, res, next){
+    const { token } = req.cookies;
+    if (!token) {
+        return res.status(401).json({ message: 'No debería estár acá' })
+    }
+    const payload = await verifyToken(token)
+    if (!payload) {
+        return res.status(401).json({ message: 'No debería estár acá' })
+    }
+    req.user = payload;
+    next();
+}
+
+router.post('/auth/login', async (req, res) => {
+
+    const { email, password } = req.body;
+    const user = await userModel.findOne({ email });
+    if (!user) {
+        res.status(401).json({ message: 'Usuario o contraseña invalidos' })
+    }
+    const isValidPass = isValidPassword(password, user)
+    if (!isValidPass) {
+        res.status(401).json({ message: 'Usuario o contraseña invalidos' })
+    }
+    const token = generateToken(user);
+    res.cookie('token', token, {
+        maxAge: 1000 * 60,
+        httpOnly: true,
+    })
+        .status(200)
+        .json({ status: 'success' })
+    res.redirect('/views')
+})
+
+router.get('/auth/current', authMiddleware('jwt'), authRolesMiddleware('admin'), async (req, res) => {
+    res.status(200).json(req.user)
 })
 
 export default router;

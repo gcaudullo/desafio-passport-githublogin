@@ -3,7 +3,8 @@ import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as GithubStrategy } from 'passport-github2';
 import userModel from '../dao/models/user.model.js';
 import { createHash, isValidPassword } from '../utils.js'
-// import { Strategy as JWTStrategy } from 'passport-jwt';
+import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt';
+import { JWT_SECRET } from '../utils.js';
 
 export const init = () => {
     const registerOpts = {
@@ -64,20 +65,41 @@ export const init = () => {
         }
         user = {
             first_name: profile._json.name,
-            last_name:'',
+            last_name: '',
             email: email,
-            password:'',
+            password: '',
         }
         const newUser = await userModel.create(user);
         done(null, newUser);
     }))
 
-    passport.serializeUser((user, done) => {
-        done(null, user._id)
-    });
+    const cookieExtractor = (req) => {
+        let token = null;
+        if (req && req.cookies){
+            token = req.cookies.token;
+        }
+        return token;
+    }
+    const jwtOpts = {
+        secretOrKey: JWT_SECRET,
+        jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
+    };
+    passport.use('jwt', new JWTStrategy(jwtOpts, async (payload, done) => {
+        try{
+            return done(null, payload);
+        } catch{
+            return done(err);
+        }
+        
+    }))
 
-    passport.deserializeUser(async (uid, done) => { //inflar la session
-        const user = await userModel.findById(uid);
-        done(null, user);
-    });
+    //Con JWT no necesitamos serialización ni deserialización de nada.
+    // passport.serializeUser((user, done) => {
+    //     done(null, user._id)
+    // });
+
+    // passport.deserializeUser(async (uid, done) => { //inflar la session
+    //     const user = await userModel.findById(uid);
+    //     done(null, user);
+    // });
 }
