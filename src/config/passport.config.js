@@ -77,6 +77,7 @@ export const init = () => {
         let token = null;
         if (req && req.cookies){
             token = req.cookies.token;
+            /*el nombre token debe coincidir con el que hicimos en el login*/
         }
         return token;
     }

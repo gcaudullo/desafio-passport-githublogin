@@ -65,24 +65,27 @@ export const authMiddleware = (strategy) => (req, res, next) => {
     passport.authenticate(strategy, function (error, payload, info) {
         if (error) {
             return next(error);
+            /*Si ocurre algun error al llamar al metodo next con parametro de error va al middleware de errores que está en app.js*/
         }
         if (!payload) {
             return res.status(401).json({ message: info.message ? info.message : info.toString() });
         }
         req.user = payload;
         next();
-    })(req, res, next)
-}
+    })(req, res, next) /*aquí llamamos a la funcion function que acabamos de definir*/
+};
 
 
 export const authRolesMiddleware = (role) => (req, res, next) => {
     if (!req.user) {
         return res.status(401).json({ message: 'Unauthorized' })
+        /*401 no está autenticado*/
     }
     const { role : userRole } = req.user;
     if (userRole !== role){
         return res.
         status(403).json({message: 'No permissions'})
+        /*403 no tiene permisos*/
     }
     next();
 }
