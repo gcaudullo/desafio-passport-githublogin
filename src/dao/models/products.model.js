@@ -12,6 +12,6 @@ const productSchema = new mongoose.Schema({
   thumbnails: { type: [String], default: [], required: false },
 }, {timestamps: true});
 
-productSchema.plugin(mongoosePaginate);
+productSchema.plugin(mongoosePaginate); //Esto nos permite paginar nuestras respuestas.
 
 export default mongoose.model('Product', productSchema);

@@ -65,7 +65,7 @@ router.get('/sessions/github/callback', passport.authenticate('github', { failur
     res.redirect('/views')
 })
 
-const auth = async (req, res, next){
+const auth = async (req, res, next) => {
     const { token } = req.cookies;
     if (!token) {
         return res.status(401).json({ message: 'No debería estár acá' })
@@ -79,7 +79,6 @@ const auth = async (req, res, next){
 }
 
 router.post('/auth/login', async (req, res) => {
-
     const { email, password } = req.body;
     const user = await userModel.findOne({ email });
     if (!user) {
