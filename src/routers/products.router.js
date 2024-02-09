@@ -1,6 +1,8 @@
 import ProductsManager from '../dao/product.manager.js';
 import express from 'express';
 import {buildResponsePaginated} from '../utils.js';
+import { authMiddleware, authRolesMiddleware } from '../utils.js';
+import passport from 'passport';
 const router = express.Router();
 
 
@@ -39,7 +41,7 @@ router.get('/products', async (req, res) => {
 //     }
 // });
 
-router.get('/products/:pId', async (req, res) => {
+router.get('/products/:pId', authMiddleware('jwt'), authRolesMiddleware(['user' , 'admin']), async (req, res) => {
     const { pId } = req.params;
 
     try {
@@ -55,7 +57,7 @@ router.get('/products/:pId', async (req, res) => {
     }
 });
 
-router.post('/products', async (req, res) => {
+router.post('/products', authMiddleware('jwt'), authRolesMiddleware(['admin']),async (req, res) => {
     try {
         const newProduct = await ProductsManager.addProduct(req.body);
         res.status(201).json(newProduct);
@@ -65,7 +67,7 @@ router.post('/products', async (req, res) => {
     }
 });
 
-router.put('/products/:pid', async (req, res) => {
+router.put('/products/:pid', authMiddleware('jwt'), authRolesMiddleware(['admin']), async (req, res) => {
     const { pid } = req.params;
     const productData = req.body;
 
@@ -78,7 +80,7 @@ router.put('/products/:pid', async (req, res) => {
     }
 });
 
-router.delete('/products/:pid', async (req, res) => {
+router.delete('/products/:pid', authMiddleware('jwt'), authRolesMiddleware(['admin']), async (req, res) => {
     const { pid } = req.params;
 
     try {

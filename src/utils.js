@@ -28,19 +28,21 @@ export const buildResponsePaginated = (data, baseUrl = base_Url) => {
     };
 }
 
+//Hasheo del password para guardarlo en la base de datos.
 export const createHash = (password) => {
     const result = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
     return result;
 }
-
+//Deshasheo el password para compararlo con el password que ingresó el usuario
 export const isValidPassword = (password, user) => {
     const result = bcrypt.compareSync(password, user.password)
     return result;
 }
 
+//Una vez chequeado que el usuario está registrado y logueado generamos el Token
 export const generateToken = (user) => {
     const payload = {
-        id: user_id,
+        id: user_id, //si no anda revisar este campo puede ser user._id
         first_name: user.first_name,
         last_name: user.last_name,
         email: user.email,
@@ -50,10 +52,10 @@ export const generateToken = (user) => {
 };
 
 export const verifyToken = (token) => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         JWT.verify(token, JWT_SECRET, (error, payload) => {
             if (error) {
-                return resolve(false)
+                return reject(error)
             }
             resolve(payload)
         });
@@ -76,15 +78,15 @@ export const authMiddleware = (strategy) => (req, res, next) => {
 };
 
 
-export const authRolesMiddleware = (role) => (req, res, next) => {
+export const authRolesMiddleware = (roles) => (req, res, next) => {
     if (!req.user) {
         return res.status(401).json({ message: 'Unauthorized' })
         /*401 no está autenticado*/
     }
     const { role : userRole } = req.user;
-    if (userRole !== role){
+    if (!roles.includes(userRole){
         return res.
-        status(403).json({message: 'No permissions'})
+        status(403).json({message: 'Forbidden'})
         /*403 no tiene permisos*/
     }
     next();

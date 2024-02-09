@@ -75,8 +75,8 @@ export const init = () => {
 
     const cookieExtractor = (req) => {
         let token = null;
-        if (req && req.cookies){
-            token = req.cookies.token;
+        if (req && req.signedCookies){
+            token = req.signedCookies['token'];
             /*el nombre token debe coincidir con el que hicimos en el login*/
         }
         return token;

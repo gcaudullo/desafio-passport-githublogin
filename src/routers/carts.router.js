@@ -1,19 +1,21 @@
 import CartsManager from '../dao/cart.manager.js';
 import express from 'express';
+import { createHash, generateToken, isValidPassword, verifyToken, authMiddleware, authRolesMiddleware } from '../utils.js';
+
 
 const router = express.Router();
 
-router.post('/carts', async (req, res) => {
+router.post('/carts', authMiddleware('jwt'), authRolesMiddleware('admin'), async (req, res) => {
     try {
         const cartId = await CartsManager.addCart();
-        res.status(201).json({ message: 'Cart created successfully' , cartId });
+        res.status(201).json({ message: 'Cart created successfully', cartId });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error creating cart.' });
     }
 });
 
-router.get('/carts/:cid', async (req, res) => {
+router.get('/carts/:cid', authMiddleware('jwt'), authRolesMiddleware('admin'), async (req, res) => {
     const cartId = req.params.cid;
 
     try {
@@ -29,7 +31,7 @@ router.get('/carts/:cid', async (req, res) => {
     }
 });
 
-router.post('/carts/:cid/products/:pid', async (req, res) => {
+router.post('/carts/:cid/products/:pid', authMiddleware('jwt'), authRolesMiddleware('admin'), async (req, res) => {
     const cartId = req.params.cid;
     const productId = req.params.pid;
     const quantity = req.body.quantity || 1;
@@ -44,7 +46,7 @@ router.post('/carts/:cid/products/:pid', async (req, res) => {
 });
 
 // DELETE api/carts/:cid/products/:pid
-router.delete('/carts/:cid/products/:pid', async (req, res) => {
+router.delete('/carts/:cid/products/:pid', authMiddleware('jwt'), authRolesMiddleware('admin'), async (req, res) => {
     const cartId = req.params.cid;
     const productId = req.params.pid;
 
@@ -58,7 +60,7 @@ router.delete('/carts/:cid/products/:pid', async (req, res) => {
 });
 
 // PUT api/carts/:cid
-router.put('/carts/:cid', async (req, res) => {
+router.put('/carts/:cid', authMiddleware('jwt'), authRolesMiddleware('admin'), async (req, res) => {
     const cartId = req.params.cid;
     const products = req.body.products;
     try {
@@ -71,7 +73,7 @@ router.put('/carts/:cid', async (req, res) => {
 });
 
 // PUT api/carts/:cid/products/:pid
-router.put('/carts/:cid/products/:pid', async (req, res) => {
+router.put('/carts/:cid/products/:pid', authMiddleware('jwt'), authRolesMiddleware('admin'), async (req, res) => {
     const cartId = req.params.cid;
     const productId = req.params.pid;
     const quantity = req.body.quantity;

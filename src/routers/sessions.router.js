@@ -1,22 +1,22 @@
 import { Router } from 'express';
 import userModel from '../dao/models/user.model.js';
 import { createHash, generateToken, isValidPassword, verifyToken, authMiddleware, authRolesMiddleware } from '../utils.js';
-import passport, { session } from 'passport';
+import passport from 'passport';
 const router = Router();
 
-router.post('/sessions/login', passport.authenticate('login', { failureRedirect: '/sessions/login' }), async (req, res) => {
+// router.post('/sessions/login', passport.authenticate('login', { failureRedirect: '/sessions/login' }), async (req, res) => {
 
-    // req.session.user = {
-    //     first_name,
-    //     last_name,
-    //     email,
-    //     age,
-    //     role: email === 'adminCoder@coder.com' && password === 'adminCod3r123' ? 'admin' : 'user',
-    // };
-    console.log(req.user)
-    // res.status(200).json({ messaje: 'Session iniciada correctamente' })
-    res.redirect('/views')
-})
+//     // req.session.user = {
+//     //     first_name,
+//     //     last_name,
+//     //     email,
+//     //     age,
+//     //     role: email === 'adminCoder@coder.com' && password === 'adminCod3r123' ? 'admin' : 'user',
+//     // };
+//     console.log(req.user)
+//     // res.status(200).json({ messaje: 'Session iniciada correctamente' })
+//     res.redirect('/views')
+// })
 
 router.post('/sessions/register', passport.authenticate('register', { failureRedirect: '/sessions/register' }), async (req, res) => {
     // res.status(201).json(user)
@@ -41,21 +41,18 @@ router.post('/sessions/recovery-password', async (req, res) => {
     res.redirect('/views/login');
 })
 
-router.get('/sessions/profile', async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ message: 'No estas autenticado.' })
-    }
-    return res.status(200).json(req.session.user)
-})
+// router.get('/sessions/profile', async (req, res) => {
+//     if (!req.session.user) {
+//         return res.status(401).json({ message: 'No estas autenticado.' })
+//     }
+//     return res.status(200).json(req.session.user)
+// })
 
 router.get('/sessions/logout', (req, res) => {
-    req.session.destroy((error) => {
-        if (error) {
-            return res.render('error', { title: 'Hello People 🖐️', messageError: error.message });
-        }
-        res.redirect('/views/login');
-    });
-})
+    req.logout(); // Desautentica al usuario
+    res.clearCookie('token'); // Elimina la cookie que almacena el token JWT, si la tienes
+    res.redirect('/views/login');
+});
 
 router.get('/sessions/github', passport.authenticate('github', { scope: ['user:email'] }))
 
@@ -78,7 +75,7 @@ const auth = async (req, res, next) => {
     next();
 }
 
-router.post('/auth/login', async (req, res) => {
+router.post('/sessions/login', async (req, res) => {
     const { email, password } = req.body;
     const user = await userModel.findOne({ email });
     if (!user) {
@@ -90,15 +87,16 @@ router.post('/auth/login', async (req, res) => {
     }
     const token = generateToken(user);
     res.cookie('token', token, {
-        maxAge: 1000 * 60,
+        maxAge: 1000 * 60 * 30, //EXPRESADO EN MILISEGUNDOS 1000 * 60 * 30 = 30 MINUTOS
         httpOnly: true,
+        signed: true
     })
         .status(200)
         .json({ status: 'success' })
     res.redirect('/views')
 })
 
-router.get('/auth/current', authMiddleware('jwt'), authRolesMiddleware('admin'), async (req, res) => {
+router.get('/sessions/current', authMiddleware('jwt'), authRolesMiddleware('admin'), async (req, res) => {
     res.status(200).json(req.user)
 })
 
