@@ -93,14 +93,4 @@ export const init = () => {
         }
         
     }))
-
-    //Con JWT no necesitamos serialización ni deserialización de nada.
-    // passport.serializeUser((user, done) => {
-    //     done(null, user._id)
-    // });
-
-    // passport.deserializeUser(async (uid, done) => { //inflar la session
-    //     const user = await userModel.findById(uid);
-    //     done(null, user);
-    // });
 }

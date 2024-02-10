@@ -42,7 +42,7 @@ export const isValidPassword = (password, user) => {
 //Una vez chequeado que el usuario está registrado y logueado generamos el Token
 export const generateToken = (user) => {
     const payload = {
-        id: user_id, //si no anda revisar este campo puede ser user._id
+        id: user._id, //si no anda revisar este campo puede ser user._id
         first_name: user.first_name,
         last_name: user.last_name,
         email: user.email,
@@ -79,15 +79,12 @@ export const authMiddleware = (strategy) => (req, res, next) => {
 
 
 export const authRolesMiddleware = (roles) => (req, res, next) => {
-    if (!req.user) {
-        return res.status(401).json({ message: 'Unauthorized' })
-        /*401 no está autenticado*/
+    const { user } = req;
+    if (!user) {
+        return res.status(401).json({ message: 'unauthorized 😨' });
     }
-    const { role : userRole } = req.user;
-    if (!roles.includes(userRole){
-        return res.
-        status(403).json({message: 'Forbidden'})
-        /*403 no tiene permisos*/
+    if (!roles.includes(user.role)) {
+        return res.status(403).json({ message: 'forbidden 😨' });
     }
     next();
 }
